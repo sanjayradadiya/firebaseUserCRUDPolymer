@@ -1,0 +1,117 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-password-input/paper-password-input.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+
+<dom-module id="login-page">
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    <style>
+      :host {
+        height: 100vh;
+        @apply --layout-horizontal;
+        @apply --layout-center-center;
+      }
+      .login-card {
+        padding: 24px;
+        width: 280px;
+        background: #fff;
+        @apply --shadow-elevation-2dp;
+      }
+      h2{
+        color: var(--app-primary-color);
+      }
+      paper-input, paper-password-input{
+        width: 280px;
+      }
+      .login {
+        background: var(--app-primary-color);
+        color: #fff;
+      }
+      .error {
+        color: var(--app-error-color);
+        margin-bottom: 0px;
+        display: none;
+      }
+      :host([show-error]) .error{
+        display: block;
+      }
+      .actions{
+        margin-top: 42px;
+        width: 100%;
+      }
+      .actions a{
+        text-decoration: none;
+        color: var(--app-primary-color);
+      }
+       :host([show-error]) .actions{
+        margin-top: 16px;
+      }
+    </style>
+    <div class="layout vertical center-center login-card">
+       <h2>Login</h2>
+       <div>
+         <paper-input label="Email" name="email" value="{{email}}"></paper-input>
+         <paper-password-input label="Password" name="password" value="{{password}}"></paper-password-input>
+       </div>
+       <p class="error">[[errorMessage]]</p>
+       <div class="actions layout horizontal center justified">
+         <a class="signup" href="/signup">Create account</a>
+         <paper-button class="login" on-tap="_onLoginTap">Login</paper-button>
+       </div>
+    </div>
+    <firebase-auth id="auth"></firebase-auth>
+  </template>
+ <script>
+    // Gesture events like tap and track generated from touch will not be
+    // preventable, allowing for better scrolling performance.
+    Polymer.setPassiveTouchGestures(true);
+
+    class LoginPage extends Polymer.Element {
+      static get is() { return 'login-page'; }
+
+      static get properties() {
+        return {
+          route: {
+            type: Object,
+            notify: true
+          },
+          email: String,
+          password: String,
+          showError: {
+            type: Boolean,
+            reflectToAttribute: true
+          },
+          errorMessage: String
+        };
+      }
+
+      _onLoginTap (){
+        var self = this;
+        this.set('showError', false);
+        this.$.auth.signInWithEmailAndPassword(this.email, this.password).then(function(){
+          self.set('route.path', '/home');
+        }).catch(function(error){
+          self.set('errorMessage', error.message);
+          self.set('showError', true);
+        });
+      }
+    }
+
+    window.customElements.define(LoginPage.is, LoginPage);
+  </script>
+</dom-module>

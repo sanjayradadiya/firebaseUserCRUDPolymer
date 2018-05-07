@@ -1,0 +1,7 @@
+/bower_components/
+/build/
+/test/
+/public/
+/.project~
+/.project
+/.firebaserc

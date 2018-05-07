@@ -1,0 +1,146 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+
+<link rel="lazy-import" href="app-page.html">
+<link rel="lazy-import" href="login-page.html">
+<link rel="lazy-import" href="signup-page.html">
+
+<dom-module id="user-managment">
+  <template>
+    <style>
+      :host {
+        --app-primary-color: #4285f4;
+        --app-secondary-color: black;
+        --app-error-color: #dd2c00;
+
+        display: block;
+      }
+    </style>
+    
+    <app-location
+        route="{{route}}"
+        url-space-regex="^[[rootPath]]">
+    </app-location>
+
+    <app-route
+        route="{{route}}"
+        pattern="[[rootPath]]:page"
+        data="{{routeData}}"
+        tail="{{subroute}}">
+    </app-route>
+    
+    <firebase-app
+      auth-domain="[[firebaseConfig.authDomain]]"
+      database-url="[[firebaseConfig.databaseURL]]"
+      api-key="[[firebaseConfig.apiKey]]"
+      storage-bucket="[[firebaseConfig.storageBucket]]"
+      messaging-sender-id="[[firebaseConfig.messagingSenderId]]">
+    </firebase-app>
+    <firebase-auth id="auth" user="{{user}}" status-known="{{statusKnown}}" signed-in="{{signedIn}}">
+    </firebase-auth>
+
+    <iron-pages
+        selected="[[page]]"
+        attr-for-selected="name"
+        fallback-selection="noPage"
+        role="main">
+      <login-page id="login" name="login" route="{{route}}"></login-page>
+      <signup-page id="signup" name="signup" route="{{route}}"></signup-page>
+      <app-page name="app" route="{{route}}"></app-page>
+      <div name="noPage"></div>
+    </iron-pages>
+  </template>
+ <script>
+    // Gesture events like tap and track generated from touch will not be
+    // preventable, allowing for better scrolling performance.
+    Polymer.setPassiveTouchGestures(true);
+
+    class UserManagment extends Polymer.Element {
+      static get is() { return 'user-managment'; }
+
+      static get properties() {
+        return {
+          page: {
+            type: String,
+            reflectToAttribute: true,
+            observer: '_pageChanged',
+          },
+          firebaseConfig: {
+            type: Object,
+            value: function(){
+              return window.fireBaseConfig;
+            }
+          },
+          routeData: Object,
+          subroute: Object,
+          // This shouldn't be neccessary, but the Analyzer isn't picking up
+          // Polymer.Element#rootPath
+          rootPath: String,
+          signedIn: Boolean,
+          statusKnown: Boolean,
+          user: Object
+        };
+      }
+
+      static get observers() {
+        return [
+          '_routePageChanged(routeData.page,statusKnown,signedIn)',
+        ];
+      }
+
+      _routePageChanged(page, statusKnown, signedIn) {
+        if(!this.statusKnown){
+          return;
+        }
+        
+        if(signedIn){
+          if(!page || page === 'login' || page === 'signup'){
+            this.set('route.path', '/home');
+            return;
+          }
+          this.set('page', 'app');
+          return;
+        }
+        
+        if(page === 'login' || page === 'signup'){
+          this.$.login.showError = false;
+          this.$.signup.showError = false;
+          this.set('page', page);
+          return;
+        }
+        this.set('route.path', '/login');
+      }
+
+      _pageChanged(page) {
+        // Load page import on demand. Show 404 page if fails
+        const resolvedPageUrl = this.resolveUrl(page + '-page.html');
+        Polymer.importHref(
+            resolvedPageUrl,
+            null,
+            this._showPage404.bind(this),
+            true);
+      }
+
+      _showPage404() {
+        this.page = 'view404';
+      }
+    }
+
+    window.customElements.define(UserManagment.is, UserManagment);
+  </script>
+</dom-module>

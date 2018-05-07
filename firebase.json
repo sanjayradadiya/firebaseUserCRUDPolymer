@@ -1,0 +1,20 @@
+{
+  "hosting": {
+    "public": "build/es6-bundled/",
+    "rewrites": [
+      {
+        "source": "/__/auth/action",
+        "destination": "/__/auth/action"
+      },
+      {
+        "source": "**/!(*.*)",
+        "destination": "/index.html"
+      }
+    ],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

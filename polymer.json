@@ -1,0 +1,28 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/user-managment.html",
+  "fragments": [
+    "src/app-page.html",
+    "src/login-page.html",
+    "src/signup-page.html",
+    "src/home-page.html",
+    "src/my-404-page.html"
+  ],
+  "sources": [
+    "images/**/*",
+    "src/**/*"
+  ],
+  "extraDependencies": [
+    "bower_components/webcomponentsjs/*.js",
+    "!bower_components/webcomponentsjs/gulpfile.js",
+    "manifest.json"
+  ],
+  "lint": {
+    "rules": ["polymer-2"]
+  },
+  "builds": [
+    {
+      "preset": "es6-bundled"
+    }
+  ]
+}
