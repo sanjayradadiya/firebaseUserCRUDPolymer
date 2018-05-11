@@ -11,10 +11,15 @@
 /* eslint-env node */
 
 module.exports = {
+
   staticFileGlobs: [
-    'bower_components/webcomponentsjs/webcomponents-loader.js',
-    'manifest.json',
+    '/index.html',
+    '/manifest.json',
+    '/bower_components/webcomponentsjs/webcomponents-lite.js',
+    '/images/*'
   ],
+  navigateFallback: '/index.html',
+  navigateFallbackWhitelist: [/^(?!.*\.html$|\/data\/).*/], 
   runtimeCaching: [
     {
       urlPattern: /\/bower_components\/webcomponentsjs\/.*.js/,
@@ -26,5 +31,4 @@ module.exports = {
       },
     },
   ],
-  navigateFallbackWhitelist: [/^(?!\/__)/]
 };

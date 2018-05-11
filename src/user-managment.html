@@ -15,6 +15,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-app.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 
 <link rel="lazy-import" href="app-page.html">
 <link rel="lazy-import" href="login-page.html">
@@ -49,10 +51,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       database-url="[[firebaseConfig.databaseURL]]"
       api-key="[[firebaseConfig.apiKey]]"
       storage-bucket="[[firebaseConfig.storageBucket]]"
-      messaging-sender-id="[[firebaseConfig.messagingSenderId]]">
+      messaging-sender-id="[[firebaseConfig.messagingSenderId]]"
+      >
     </firebase-app>
+
     <firebase-auth id="auth" user="{{user}}" status-known="{{statusKnown}}" signed-in="{{signedIn}}">
     </firebase-auth>
+
+    <firebase-document path="/config/version" data="{{_appVersion}}" id="firebaseDocument">
+    </firebase-document>
 
     <iron-pages
         selected="[[page]]"
@@ -64,6 +71,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <app-page name="app" route="{{route}}"></app-page>
       <div name="noPage"></div>
     </iron-pages>
+
+    <paper-toast id="updateToast" duration="0" text="New Update Is Here :)">
+      <paper-button onclick="window.location.reload(true)">
+            Update
+      </paper-button>
+      <paper-button onclick="updateToast.toggle()">
+          Cancel
+      </paper-button>
+    </paper-toast>
+    
   </template>
  <script>
     // Gesture events like tap and track generated from touch will not be
@@ -93,14 +110,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           rootPath: String,
           signedIn: Boolean,
           statusKnown: Boolean,
-          user: Object
+          user: Object,
+          _appVersion: {
+            type: Object
+          }
         };
       }
 
       static get observers() {
         return [
           '_routePageChanged(routeData.page,statusKnown,signedIn)',
+          '_manageNewVersion(_appVersion)'
         ];
+      }
+
+      _manageNewVersion(){
+        self = this;
+        
+        if(Object.keys(self._appVersion).length > 0 && self._appVersion !== window.myApp.version){
+          console.info('self._appVersion',self._appVersion,window.myApp.version);
+          this.$.updateToast.show();
+        }
+      }
+
+      _update() {
+         this.$.updateToast.show();
       }
 
       _routePageChanged(page, statusKnown, signedIn) {
@@ -124,6 +158,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return;
         }
         this.set('route.path', '/login');
+
+        //this.listen(window, 'service-worker-activated', _update);
       }
 
       _pageChanged(page) {

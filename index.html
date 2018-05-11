@@ -85,16 +85,52 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       * and trailing slashes (e.g., `/my-app/`).
       */
       window.Polymer = {rootPath: '/'};
+      window.myApp = {version:'0.0.4'};
 
       // Load and register pre-caching Service Worker
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('service-worker.js', {
-            scope: Polymer.rootPath,
-          });
-        });
-      }
+      // if ('serviceWorker' in navigator) {
+      //   window.addEventListener('load', function() {
+      //     navigator.serviceWorker.register('service-worker.js?v=1.2', {
+      //       scope: Polymer.rootPath,
+      //     }).then(function(reg){
+
+      //       var app = document.querySelector('#app');
+            
+      //       if (reg.waiting) {
+      //         console.log("inside reg.waiting");
+      //         app.update(reg);
+      //         return;
+      //       }
+
+      //       if (reg.installing) {
+      //         console.log("inside reg.installing");
+      //         return;
+      //       }
+
+      //       reg.addEventListener('updatefound', function () {
+      //         console.log("inside updatefound");
+      //         app.update(reg);
+      //         let worker = reg.installing;
+      //         worker.addEventListener('statechange', function () {
+
+      //           if (worker.state == 'installed') {
+      //             console.log('Is installed');
+      //             app.update(reg);
+      //             // Here you can notify the user, that a new version exist.
+      //             // Show a toast view, asking the user to upgrade.
+      //             // The user accepts.
+      //             // Send a message to the sw, to skip wating.
+      //             worker.postMessage({ action: 'skipWaiting' });
+
+      //           }
+      //         });
+      //       });
+      //     });
+      //   });
+      // }
     </script>
+
+    <script src="js/service-worker-registration.js"></script>
 
     <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
     <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
@@ -114,7 +150,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
   </head>
   <body>
-    <user-managment></user-managment>
+    <user-managment id="app"></user-managment>
     <noscript>
       Please enable JavaScript to view this website.
     </noscript>
