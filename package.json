@@ -1,5 +1,7 @@
 {
   "name": "polymer-starter-kit",
+  "version": "1.0.0",
+  "description": "Its a solution for service worker update when new release found from firebase, service will register automatically when and real timly while version is changed inside firebase",
   "license": "BSD-3-Clause",
   "devDependencies": {
     "eslint": "^3.19.0",
